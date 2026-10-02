@@ -14,6 +14,11 @@ return [
             'endpoint'         => $env('SOAP_ENDPOINT', 'http://soap-mock:8081/'),
             'timeout_segundos' => (int) $env('SOAP_TIMEOUT', '5'),
         ],
+        'vacinacao' => [
+            // API de vacinação de rebanhos (projeto vacinacao-api, em .NET)
+            'endpoint'         => $env('VACINACAO_ENDPOINT', 'http://vacinacao-api:8080/'),
+            'timeout_segundos' => (int) $env('VACINACAO_TIMEOUT', '5'),
+        ],
         'retry' => [
             'max_tentativas'    => (int) $env('RETRY_MAX_TENTATIVAS', '3'),
             'espera_inicial_ms' => (int) $env('RETRY_ESPERA_MS', '200'),

@@ -2,6 +2,7 @@
 
 namespace Gta\Application;
 
+use Gta\Domain\AptidaoSanitaria;
 use Gta\Domain\CadastroAgropecuario;
 use Gta\Domain\ChaveIdempotencia;
 use Gta\Domain\CodigoPropriedade;
@@ -19,6 +20,7 @@ final readonly class EmitirGta
 {
     public function __construct(
         private CadastroAgropecuario $cadastro,
+        private AptidaoSanitaria $aptidaoSanitaria,
         private GtaRepository $repositorio,
         private ClockInterface $relogio,
         private LoggerInterface $logger,
@@ -94,6 +96,11 @@ final readonly class EmitirGta
         $saldo = $this->cadastro->saldoRebanho($codigo, $comando->especie);
         if ($saldo < $comando->quantidade) {
             throw RegraEmissaoViolada::saldoInsuficiente($comando->especie, $saldo, $comando->quantidade);
+        }
+
+        $aptidao = $this->aptidaoSanitaria->verificar($codigo, $comando->especie);
+        if (!$aptidao->apta) {
+            throw RegraEmissaoViolada::rebanhoInapto($codigo, $comando->especie, $aptidao->pendencias);
         }
     }
 

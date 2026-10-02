@@ -14,6 +14,7 @@ use Gta\Domain\Finalidade;
 use Gta\Domain\Gta;
 use Gta\Domain\Propriedade;
 use Gta\Domain\SituacaoPropriedade;
+use Gta\Tests\Double\AptidaoSanitariaEmMemoria;
 use Gta\Tests\Double\CadastroAgropecuarioEmMemoria;
 use Gta\Tests\Double\GtaRepositoryEmMemoria;
 use Gta\Tests\Double\RelogioCongelado;
@@ -33,6 +34,7 @@ use Ramsey\Uuid\Uuid;
 final class EmitirGtaTest extends TestCase
 {
     private CadastroAgropecuarioEmMemoria $cadastro;
+    private AptidaoSanitariaEmMemoria $aptidao;
     private GtaRepositoryEmMemoria $repositorio;
     private EmitirGta $emitirGta;
 
@@ -42,10 +44,44 @@ final class EmitirGtaTest extends TestCase
             ->comPropriedade('GO000001', saldoBovinos: 100)
             ->comPropriedade('GO000002')
             ->comPropriedade('GO000003', SituacaoPropriedade::Bloqueada, saldoBovinos: 100)
-            ->comPropriedade('GO000004', SituacaoPropriedade::Inativa);
+            ->comPropriedade('GO000004', SituacaoPropriedade::Inativa)
+            ->comPropriedade('GO000005', saldoBovinos: 100);
+
+        $this->aptidao = new AptidaoSanitariaEmMemoria()
+            ->comPendencia('GO000005', 'Sem vacinação válida contra Brucelose.');
 
         $this->repositorio = new GtaRepositoryEmMemoria();
-        $this->emitirGta   = new EmitirGta($this->cadastro, $this->repositorio, new RelogioCongelado(), new NullLogger());
+        $this->emitirGta   = new EmitirGta(
+            $this->cadastro,
+            $this->aptidao,
+            $this->repositorio,
+            new RelogioCongelado(),
+            new NullLogger(),
+        );
+    }
+
+    #[Test]
+    public function recusaRebanhoSemVacinacaoEmDia(): void
+    {
+        $this->expectException(RegraEmissaoViolada::class);
+        $this->expectExceptionMessage('Rebanho de bovino da origem GO000005 não está apto para transporte: Sem vacinação válida contra Brucelose.');
+
+        try {
+            $this->emitirGta->executar($this->comando(origem: 'GO000005'));
+        } finally {
+            self::assertSame(0, $this->repositorio->total());
+        }
+    }
+
+    #[Test]
+    public function naoConsultaVacinacaoQuandoOCadastroJaImpede(): void
+    {
+        try {
+            $this->emitirGta->executar($this->comando(quantidade: 101));
+        } catch (RegraEmissaoViolada) {
+        }
+
+        self::assertSame(0, $this->aptidao->consultas, 'Saldo insuficiente barra antes da chamada REST');
     }
 
     #[Test]

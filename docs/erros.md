@@ -28,12 +28,13 @@ O campo `type` aponta para a seção correspondente deste documento.
 
 ## regra-emissao-violada
 
-**422**: o cadastro agropecuário impede a emissão:
+**422**: o cadastro agropecuário ou o controle de vacinação impedem a emissão:
 
 - propriedade de origem ou de destino não encontrada;
 - origem com situação diferente de `ATIVA`;
 - destino `INATIVA`;
-- saldo de animais da espécie insuficiente na origem.
+- saldo de animais da espécie insuficiente na origem;
+- rebanho da origem sem as vacinas obrigatórias em dia (consulta à API de vacinação).
 
 ## conflito-idempotencia
 
@@ -49,5 +50,5 @@ O campo `type` aponta para a seção correspondente deste documento.
 
 ## integracao-indisponivel
 
-**503**: o cadastro agropecuário não respondeu após as novas tentativas, ou respondeu fora do
+**503**: o cadastro agropecuário (SOAP) ou a API de vacinação (REST) não respondeu após as novas tentativas, ou respondeu fora do
 contrato. Respeite o header `Retry-After` e reenvie com a **mesma** `Idempotency-Key`.

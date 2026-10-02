@@ -31,6 +31,21 @@ final class RegraEmissaoViolada extends GtaException
         ));
     }
 
+    /**
+     * @param list<string> $pendencias
+     */
+    public static function rebanhoInapto(CodigoPropriedade $codigo, Especie $especie, array $pendencias): self
+    {
+        $motivo = $pendencias === [] ? 'vacinação obrigatória pendente' : implode(' ', $pendencias);
+
+        return new self(sprintf(
+            'Rebanho de %s da origem %s não está apto para transporte: %s',
+            $especie->value,
+            $codigo,
+            $motivo,
+        ));
+    }
+
     public static function saldoInsuficiente(Especie $especie, int $saldo, int $solicitado): self
     {
         return new self(sprintf(

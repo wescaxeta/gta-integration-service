@@ -30,7 +30,8 @@ paths:
     post:
       summary: Emite uma GTA
       description: |
-        Valida origem e destino no cadastro agropecuário (SOAP), confere o saldo do rebanho
+        Valida origem e destino no cadastro agropecuário (SOAP), confere o saldo do rebanho,
+        verifica a vacinação na API de vacinação (REST)
         e grava a GTA. Idempotente pelo header Idempotency-Key.
       operationId: emitirGta
       parameters:
@@ -177,7 +178,7 @@ components:
                       type: array
                       items: { type: string }
     IntegracaoIndisponivel:
-      description: Cadastro agropecuário indisponível. Reenvie com a mesma Idempotency-Key.
+      description: Cadastro agropecuário ou API de vacinação indisponível. Reenvie com a mesma Idempotency-Key.
       headers:
         Retry-After:
           schema: { type: integer, example: 30 }

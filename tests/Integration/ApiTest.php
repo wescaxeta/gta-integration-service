@@ -2,6 +2,7 @@
 
 namespace Gta\Tests\Integration;
 
+use Gta\Domain\AptidaoSanitaria;
 use Gta\Domain\CadastroAgropecuario;
 use Gta\Domain\GtaRepository;
 use Gta\Http\Handler\CancelarGtaHandler;
@@ -13,6 +14,7 @@ use Gta\Http\Middleware\ErrosDeDominioMiddleware;
 use Gta\Http\RequisicaoInvalida;
 use Gta\Integration\Retry\RetryPolicy;
 use Gta\Integration\Soap\SoapCadastroAgropecuario;
+use Gta\Tests\Double\AptidaoSanitariaEmMemoria;
 use Gta\Tests\Double\GtaRepositoryEmMemoria;
 use Gta\Tests\Double\RelogioCongelado;
 use Gta\Tests\Double\SoapClientEmProcesso;
@@ -66,6 +68,8 @@ final class ApiTest extends TestCase
         $container->setService(GtaRepository::class, new GtaRepositoryEmMemoria());
         $container->setService(ClockInterface::class, new RelogioCongelado());
         $container->setService(LoggerInterface::class, new NullLogger());
+        $container->setService(AptidaoSanitaria::class, new AptidaoSanitariaEmMemoria()
+            ->comPendencia('GO000005', 'Sem vacinação válida contra Brucelose.'));
         $container->setService(CadastroAgropecuario::class, new SoapCadastroAgropecuario(
             new SoapClientEmProcesso($raiz . '/resources/wsdl/cadastro-agropecuario.wsdl', new CadastroAgropecuarioMock()),
             new RetryPolicy(maxTentativas: 2, esperaInicialMs: 0),
@@ -149,6 +153,17 @@ final class ApiTest extends TestCase
 
         self::assertSame(422, $resposta->getStatusCode());
         self::assertSame('/docs/erros#regra-emissao-violada', $this->json($resposta)['type']);
+    }
+
+    #[Test]
+    public function rebanhoSemVacinacaoEmDiaRetorna422(): void
+    {
+        $resposta = $this->emitir(['origem' => 'GO000005'] + self::CORPO_VALIDO, 'pedido-0006');
+        $detalhe  = $this->json($resposta)['detail'];
+
+        self::assertSame(422, $resposta->getStatusCode());
+        self::assertIsString($detalhe);
+        self::assertStringContainsString('não está apto para transporte', $detalhe);
     }
 
     #[Test]

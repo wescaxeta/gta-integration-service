@@ -88,10 +88,11 @@ jobs:
           docker compose build
           docker compose run --rm --no-deps api composer install --no-progress --no-dev --optimize-autoloader
 
-      - name: Sobe API, mock SOAP e PostgreSQL
+      - name: Sobe API, mock SOAP, API de vacinação (.NET) e bancos
         run: |
           docker compose up -d --wait
-          for i in $(seq 1 30); do curl -sf http://localhost:8080/health && break; sleep 1; done
+          for i in $(seq 1 60); do curl -sf http://localhost:8080/health && break; sleep 1; done
+          for i in $(seq 1 60); do curl -sf http://localhost:8090/health && break; sleep 1; done
 
       - name: Smoke test
         run: sh tests/smoke.sh http://localhost:8080

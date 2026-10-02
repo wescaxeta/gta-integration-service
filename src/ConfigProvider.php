@@ -4,6 +4,7 @@ namespace Gta;
 
 use Gta\Application\CancelarGta;
 use Gta\Application\EmitirGta;
+use Gta\Domain\AptidaoSanitaria;
 use Gta\Domain\CadastroAgropecuario;
 use Gta\Domain\GtaRepository;
 use Gta\Http\Handler\CancelarGtaHandler;
@@ -14,9 +15,11 @@ use Gta\Http\Middleware\ErrosDeDominioMiddleware;
 use Gta\Infrastructure\Clock\RelogioDoSistema;
 use Gta\Infrastructure\Factory\LoggerFactory;
 use Gta\Infrastructure\Factory\PdoFactory;
+use Gta\Infrastructure\Factory\RestAptidaoSanitariaFactory;
 use Gta\Infrastructure\Factory\RetryPolicyFactory;
 use Gta\Infrastructure\Factory\SoapClientFactory;
 use Gta\Infrastructure\Persistence\PdoGtaRepository;
+use Gta\Integration\Rest\RestAptidaoSanitaria;
 use Gta\Integration\Retry\RetryPolicy;
 use Gta\Integration\Soap\SoapCadastroAgropecuario;
 use Laminas\ServiceManager\AbstractFactory\ReflectionBasedAbstractFactory;
@@ -49,6 +52,7 @@ final class ConfigProvider
         return [
             'aliases' => [
                 CadastroAgropecuario::class => SoapCadastroAgropecuario::class,
+                AptidaoSanitaria::class     => RestAptidaoSanitaria::class,
                 GtaRepository::class        => PdoGtaRepository::class,
                 ClockInterface::class       => RelogioDoSistema::class,
             ],
@@ -61,6 +65,8 @@ final class ConfigProvider
                 SoapClient::class      => SoapClientFactory::class,
                 RetryPolicy::class     => RetryPolicyFactory::class,
                 LoggerInterface::class => LoggerFactory::class,
+
+                RestAptidaoSanitaria::class => RestAptidaoSanitariaFactory::class,
 
                 SoapCadastroAgropecuario::class => ReflectionBasedAbstractFactory::class,
                 PdoGtaRepository::class         => ReflectionBasedAbstractFactory::class,

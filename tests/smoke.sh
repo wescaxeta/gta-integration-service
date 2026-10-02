@@ -40,6 +40,10 @@ verificar "cancelamento" 200 "$(status -X POST "$BASE$LOCAL/cancelamento")"
 
 verificar "segundo cancelamento recusado" 409 "$(status -X POST "$BASE$LOCAL/cancelamento")"
 
+verificar "rebanho sem vacinação em dia (API .NET) vira 422" 422 "$(status -X POST "$BASE/gtas" \
+    -H 'Content-Type: application/json' -H "Idempotency-Key: $CHAVE-vacina" \
+    -d '{"origem":"GO000005","destino":"GO000002","especie":"bovino","quantidade":5,"finalidade":"abate"}')"
+
 verificar "SOAP indisponível vira 503" 503 "$(status -X POST "$BASE/gtas" \
     -H 'Content-Type: application/json' -H "Idempotency-Key: $CHAVE-soap" \
     -d '{"origem":"GO999999","destino":"GO000002","especie":"bovino","quantidade":5,"finalidade":"abate"}')"

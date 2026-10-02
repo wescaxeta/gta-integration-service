@@ -17,12 +17,14 @@ final class CadastroAgropecuarioMock
         'GO000002' => ['nome' => 'Frigorífico Central', 'municipio' => 'Goiânia', 'uf' => 'GO', 'situacao' => 'ATIVA'],
         'GO000003' => ['nome' => 'Sítio Santa Luzia', 'municipio' => 'Jataí', 'uf' => 'GO', 'situacao' => 'BLOQUEADA'],
         'GO000004' => ['nome' => 'Fazenda Desativada', 'municipio' => 'Anápolis', 'uf' => 'GO', 'situacao' => 'INATIVA'],
+        'GO000005' => ['nome' => 'Fazenda Vista Alegre', 'municipio' => 'Mineiros', 'uf' => 'GO', 'situacao' => 'ATIVA'],
         'MT000010' => ['nome' => 'Fazenda Pantanal', 'municipio' => 'Cáceres', 'uf' => 'MT', 'situacao' => 'ATIVA'],
     ];
 
     private const array REBANHOS = [
         'GO000001' => ['bovino' => 500, 'suino' => 120],
         'GO000003' => ['bovino' => 80],
+        'GO000005' => ['bovino' => 300],
         'MT000010' => ['bovino' => 1200, 'equino' => 15],
     ];
 
