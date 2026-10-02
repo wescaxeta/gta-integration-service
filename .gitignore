@@ -1,0 +1,10 @@
+/vendor/
+/.phpunit.cache/
+/.php-cs-fixer.cache
+/coverage.xml
+/coverage/
+/junit.xml
+/config/autoload/*.local.php
+.env
+.idea/
+.vscode/

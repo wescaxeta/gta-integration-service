@@ -1,0 +1,52 @@
+services:
+  api:
+    build: .
+    command: php -S 0.0.0.0:8080 -t public
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+    environment:
+      PHP_CLI_SERVER_WORKERS: 4
+      DB_DSN: pgsql:host=db;port=5432;dbname=gta
+      DB_USER: gta
+      DB_PASSWORD: gta
+      SOAP_ENDPOINT: http://soap-mock:8081/
+      TEST_DB_DSN: pgsql:host=db;port=5432;dbname=gta_test
+      TEST_DB_USER: gta
+      TEST_DB_PASSWORD: gta
+    depends_on:
+      db:
+        condition: service_healthy
+      soap-mock:
+        condition: service_started
+
+  # WebService SOAP simulado do cadastro agropecuário estadual
+  soap-mock:
+    build: .
+    command: php -S 0.0.0.0:8081 soap-mock/public/index.php
+    ports:
+      - "8081:8081"
+    volumes:
+      - .:/app
+
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: gta
+      POSTGRES_USER: gta
+      POSTGRES_PASSWORD: gta
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./database/00-test-database.sql:/docker-entrypoint-initdb.d/00-test-database.sql:ro
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gta -d gta"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+volumes:
+  pgdata:

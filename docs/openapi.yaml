@@ -1,0 +1,186 @@
+openapi: 3.1.0
+info:
+  title: GTA Integration Service
+  version: 0.1.0
+  description: |
+    Emissão de GTA (Guia de Trânsito Animal) integrada a um WebService SOAP de cadastro agropecuário.
+    Erros seguem Problem Details (RFC 9457); veja docs/erros.md.
+  license:
+    name: MIT
+servers:
+  - url: http://localhost:8080
+    description: Docker Compose local
+
+paths:
+  /health:
+    get:
+      summary: Verifica se a API está no ar
+      operationId: health
+      responses:
+        "200":
+          description: API no ar
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: ok }
+
+  /gtas:
+    post:
+      summary: Emite uma GTA
+      description: |
+        Valida origem e destino no cadastro agropecuário (SOAP), confere o saldo do rebanho
+        e grava a GTA. Idempotente pelo header Idempotency-Key.
+      operationId: emitirGta
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/EmissaoGta" }
+      responses:
+        "201":
+          description: GTA emitida
+          headers:
+            Location:
+              schema: { type: string, example: /gtas/0192f0a0-1b2c-7d3e-8f40-5a6b7c8d9e0f }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Gta" }
+        "200":
+          description: Requisição repetida (mesma chave e mesmo conteúdo). Devolve a GTA original.
+          headers:
+            Idempotent-Replayed:
+              schema: { type: string, enum: ["true"] }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Gta" }
+        "400": { $ref: "#/components/responses/Problema" }
+        "422": { $ref: "#/components/responses/ProblemaValidacao" }
+        "503": { $ref: "#/components/responses/IntegracaoIndisponivel" }
+
+  /gtas/{id}:
+    get:
+      summary: Consulta uma GTA
+      operationId: consultarGta
+      parameters:
+        - $ref: "#/components/parameters/GtaId"
+      responses:
+        "200":
+          description: GTA encontrada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Gta" }
+        "404": { $ref: "#/components/responses/Problema" }
+
+  /gtas/{id}/cancelamento:
+    post:
+      summary: Cancela uma GTA dentro da validade
+      operationId: cancelarGta
+      parameters:
+        - $ref: "#/components/parameters/GtaId"
+      responses:
+        "200":
+          description: GTA cancelada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Gta" }
+        "404": { $ref: "#/components/responses/Problema" }
+        "409": { $ref: "#/components/responses/Problema" }
+
+components:
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: Chave única por emissão (de 8 a 64 caracteres; recomenda-se um UUID).
+      schema: { type: string, pattern: "^[A-Za-z0-9_-]{8,64}$" }
+    GtaId:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+
+  schemas:
+    CodigoPropriedade:
+      type: string
+      pattern: "^[A-Z]{2}[0-9]{6}$"
+      example: GO000001
+
+    EmissaoGta:
+      type: object
+      required: [origem, destino, especie, quantidade, finalidade]
+      properties:
+        origem: { $ref: "#/components/schemas/CodigoPropriedade" }
+        destino: { $ref: "#/components/schemas/CodigoPropriedade" }
+        especie:
+          type: string
+          enum: [bovino, bubalino, suino, equino, ovino, caprino]
+        quantidade: { type: integer, minimum: 1, maximum: 10000, example: 50 }
+        finalidade:
+          type: string
+          enum: [abate, engorda, reproducao, exposicao]
+
+    Gta:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        status: { type: string, enum: [emitida, cancelada] }
+        origem: { $ref: "#/components/schemas/CodigoPropriedade" }
+        destino: { $ref: "#/components/schemas/CodigoPropriedade" }
+        especie: { type: string }
+        quantidade: { type: integer }
+        finalidade: { type: string }
+        emitidaEm: { type: string, format: date-time }
+        validaAte: { type: string, format: date-time }
+        canceladaEm: { type: [string, "null"], format: date-time }
+        _links:
+          type: object
+          properties:
+            self: { $ref: "#/components/schemas/Link" }
+            cancelamento: { $ref: "#/components/schemas/Link" }
+
+    Link:
+      type: object
+      properties:
+        href: { type: string }
+
+    Problema:
+      type: object
+      properties:
+        type: { type: string, example: "/docs/erros#regra-emissao-violada" }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+
+  responses:
+    Problema:
+      description: Erro no formato Problem Details
+      content:
+        application/problem+json:
+          schema: { $ref: "#/components/schemas/Problema" }
+    ProblemaValidacao:
+      description: Campos inválidos, regra de negócio violada ou conflito de idempotência
+      content:
+        application/problem+json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Problema"
+              - type: object
+                properties:
+                  errors:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items: { type: string }
+    IntegracaoIndisponivel:
+      description: Cadastro agropecuário indisponível. Reenvie com a mesma Idempotency-Key.
+      headers:
+        Retry-After:
+          schema: { type: integer, example: 30 }
+      content:
+        application/problem+json:
+          schema: { $ref: "#/components/schemas/Problema" }

@@ -1,0 +1,44 @@
+# Pipeline equivalente ao do GitHub Actions, para quem espelha o repositório no GitLab.
+
+stages:
+  - quality
+  - test
+
+default:
+  image: php:8.4-cli
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq git unzip libpq-dev libxml2-dev > /dev/null
+    - docker-php-ext-install pdo_pgsql soap > /dev/null
+    - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+    - composer install --no-progress --prefer-dist
+  cache:
+    key:
+      files:
+        - composer.lock
+    paths:
+      - vendor/
+
+estilo-e-analise:
+  stage: quality
+  script:
+    - composer cs
+    - composer analyse
+
+testes:
+  stage: test
+  services:
+    - name: postgres:17-alpine
+      alias: db
+  variables:
+    POSTGRES_DB: gta_test
+    POSTGRES_USER: gta
+    POSTGRES_PASSWORD: gta
+    TEST_DB_DSN: "pgsql:host=db;port=5432;dbname=gta_test"
+    TEST_DB_USER: gta
+    TEST_DB_PASSWORD: gta
+  script:
+    - vendor/bin/phpunit --testdox --log-junit junit.xml
+  artifacts:
+    when: always
+    reports:
+      junit: junit.xml

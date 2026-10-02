@@ -1,0 +1,80 @@
+{
+    "name": "wescaxeta/gta-integration-service",
+    "description": "API REST para emissão de GTA (Guia de Trânsito Animal) integrada a um WebService SOAP de cadastro agropecuário",
+    "type": "project",
+    "license": "MIT",
+    "keywords": ["mezzio", "laminas", "soap", "rest-api", "integration", "postgresql", "idempotency"],
+    "authors": [
+        {
+            "name": "Weslley Caxeta",
+            "homepage": "https://github.com/wescaxeta"
+        }
+    ],
+    "require": {
+        "php": "^8.4",
+        "ext-json": "*",
+        "ext-pdo": "*",
+        "ext-pdo_pgsql": "*",
+        "ext-soap": "*",
+        "laminas/laminas-config-aggregator": "^1.20",
+        "laminas/laminas-diactoros": "^3.8",
+        "laminas/laminas-httphandlerrunner": "^2.14",
+        "laminas/laminas-inputfilter": "^2.35",
+        "laminas/laminas-servicemanager": "^3.24",
+        "mezzio/mezzio": "^3.28",
+        "mezzio/mezzio-fastroute": "^3.14",
+        "mezzio/mezzio-helpers": "^5.20",
+        "mezzio/mezzio-problem-details": "^1.19",
+        "monolog/monolog": "^3.9",
+        "psr/clock": "^1.0",
+        "ramsey/uuid": "^4.9"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.64",
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-phpunit": "^2.0",
+        "phpstan/phpstan-strict-rules": "^2.0",
+        "phpunit/phpunit": "^13.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Gta\\": "src/",
+            "SoapMock\\": "soap-mock/src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Gta\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "serve": [
+            "Composer\\Config::disableProcessTimeout",
+            "php -S 0.0.0.0:8080 -t public"
+        ],
+        "test": "phpunit --testdox",
+        "test:coverage": "phpunit --coverage-text --coverage-clover=coverage.xml",
+        "analyse": "phpstan analyse --memory-limit=512M",
+        "cs": "php-cs-fixer fix --dry-run --diff",
+        "cs:fix": "php-cs-fixer fix",
+        "ci": [
+            "@cs",
+            "@analyse",
+            "@test"
+        ]
+    },
+    "scripts-descriptions": {
+        "serve": "Sobe a API em http://localhost:8080 (servidor embutido do PHP)",
+        "test": "Executa a suíte de testes",
+        "test:coverage": "Executa os testes com relatório de cobertura (requer PCOV ou Xdebug)",
+        "analyse": "Análise estática com PHPStan (nível max)",
+        "cs": "Verifica o estilo de código (PER-CS)",
+        "cs:fix": "Corrige o estilo de código automaticamente",
+        "ci": "Roda o mesmo pipeline do CI localmente"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

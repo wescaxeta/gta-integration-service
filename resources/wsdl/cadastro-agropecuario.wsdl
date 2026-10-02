@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Contrato do WebService de cadastro agropecuário (simulado).
+    Estilo document/literal wrapped, o mais comum em WebServices SOAP governamentais.
+-->
+<definitions name="CadastroAgropecuario"
+             targetNamespace="http://exemplo.local/cadastro-agropecuario/v1"
+             xmlns="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns:tns="http://exemplo.local/cadastro-agropecuario/v1"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+    <types>
+        <xsd:schema targetNamespace="http://exemplo.local/cadastro-agropecuario/v1" elementFormDefault="qualified">
+            <xsd:complexType name="Propriedade">
+                <xsd:sequence>
+                    <xsd:element name="codigo" type="xsd:string"/>
+                    <xsd:element name="nome" type="xsd:string"/>
+                    <xsd:element name="municipio" type="xsd:string"/>
+                    <xsd:element name="uf" type="xsd:string"/>
+                    <xsd:element name="situacao" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <xsd:element name="ConsultarPropriedade">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="codigo" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <xsd:element name="ConsultarPropriedadeResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="encontrada" type="xsd:boolean"/>
+                        <xsd:element name="propriedade" type="tns:Propriedade" minOccurs="0"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <xsd:element name="ConsultarSaldoRebanho">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="codigo" type="xsd:string"/>
+                        <xsd:element name="especie" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <xsd:element name="ConsultarSaldoRebanhoResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="saldo" type="xsd:int"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:schema>
+    </types>
+
+    <message name="ConsultarPropriedadeRequest">
+        <part name="parameters" element="tns:ConsultarPropriedade"/>
+    </message>
+    <message name="ConsultarPropriedadeResponse">
+        <part name="parameters" element="tns:ConsultarPropriedadeResponse"/>
+    </message>
+    <message name="ConsultarSaldoRebanhoRequest">
+        <part name="parameters" element="tns:ConsultarSaldoRebanho"/>
+    </message>
+    <message name="ConsultarSaldoRebanhoResponse">
+        <part name="parameters" element="tns:ConsultarSaldoRebanhoResponse"/>
+    </message>
+
+    <portType name="CadastroAgropecuarioPortType">
+        <operation name="ConsultarPropriedade">
+            <input message="tns:ConsultarPropriedadeRequest"/>
+            <output message="tns:ConsultarPropriedadeResponse"/>
+        </operation>
+        <operation name="ConsultarSaldoRebanho">
+            <input message="tns:ConsultarSaldoRebanhoRequest"/>
+            <output message="tns:ConsultarSaldoRebanhoResponse"/>
+        </operation>
+    </portType>
+
+    <binding name="CadastroAgropecuarioBinding" type="tns:CadastroAgropecuarioPortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="ConsultarPropriedade">
+            <soap:operation soapAction="http://exemplo.local/cadastro-agropecuario/v1/ConsultarPropriedade"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        <operation name="ConsultarSaldoRebanho">
+            <soap:operation soapAction="http://exemplo.local/cadastro-agropecuario/v1/ConsultarSaldoRebanho"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+    </binding>
+
+    <service name="CadastroAgropecuarioService">
+        <port name="CadastroAgropecuarioPort" binding="tns:CadastroAgropecuarioBinding">
+            <soap:address location="http://soap-mock:8081/"/>
+        </port>
+    </service>
+</definitions>

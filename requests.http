@@ -1,0 +1,77 @@
+### Requisições de exemplo (VS Code REST Client ou PhpStorm HTTP Client)
+@base = http://localhost:8080
+
+### Health check
+GET {{base}}/health
+
+### Emitir GTA (201). Repita com a mesma chave para ver a resposta idempotente (200).
+POST {{base}}/gtas
+Content-Type: application/json
+Idempotency-Key: exemplo-0001
+
+{
+  "origem": "GO000001",
+  "destino": "GO000002",
+  "especie": "bovino",
+  "quantidade": 50,
+  "finalidade": "abate"
+}
+
+### Saldo insuficiente (422)
+POST {{base}}/gtas
+Content-Type: application/json
+Idempotency-Key: exemplo-0002
+
+{
+  "origem": "GO000001",
+  "destino": "GO000002",
+  "especie": "bovino",
+  "quantidade": 9000,
+  "finalidade": "abate"
+}
+
+### Origem bloqueada (422)
+POST {{base}}/gtas
+Content-Type: application/json
+Idempotency-Key: exemplo-0003
+
+{
+  "origem": "GO000003",
+  "destino": "GO000002",
+  "especie": "bovino",
+  "quantidade": 10,
+  "finalidade": "engorda"
+}
+
+### Cadastro SOAP fora do ar (503 + Retry-After)
+POST {{base}}/gtas
+Content-Type: application/json
+Idempotency-Key: exemplo-0004
+
+{
+  "origem": "GO999999",
+  "destino": "GO000002",
+  "especie": "bovino",
+  "quantidade": 10,
+  "finalidade": "abate"
+}
+
+### Erros de validação por campo (422)
+POST {{base}}/gtas
+Content-Type: application/json
+Idempotency-Key: exemplo-0005
+
+{
+  "origem": "go1",
+  "especie": "gato",
+  "quantidade": 0
+}
+
+### Consultar (troque pelo id retornado na emissão)
+GET {{base}}/gtas/COLE-O-ID-AQUI
+
+### Cancelar
+POST {{base}}/gtas/COLE-O-ID-AQUI/cancelamento
+
+### WSDL do WebService simulado
+GET http://localhost:8081/?wsdl
