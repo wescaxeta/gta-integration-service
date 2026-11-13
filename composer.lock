@@ -1515,25 +1515,27 @@
         },
         {
             "name": "mezzio/mezzio-problem-details",
-            "version": "1.19.0",
+            "version": "1.20.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mezzio/mezzio-problem-details.git",
-                "reference": "93d0fa1877138f53f7b726a1370cb472cc65d32d"
+                "reference": "0bd7421f0ef8033024fac6d824006589857a1006"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mezzio/mezzio-problem-details/zipball/93d0fa1877138f53f7b726a1370cb472cc65d32d",
-                "reference": "93d0fa1877138f53f7b726a1370cb472cc65d32d",
+                "url": "https://api.github.com/repos/mezzio/mezzio-problem-details/zipball/0bd7421f0ef8033024fac6d824006589857a1006",
+                "reference": "0bd7421f0ef8033024fac6d824006589857a1006",
                 "shasum": ""
             },
             "require": {
+                "ext-dom": "*",
                 "ext-json": "*",
                 "fig/http-message-util": "^1.1.2",
-                "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
+                "php": "~8.3.0 || ~8.4.0 || ~8.5.0 || ~8.6.0",
                 "psr/container": "^1.0 || ^2.0",
                 "psr/http-factory": "^1.0",
                 "psr/http-message": "^1.0 || ^2.0",
+                "psr/http-server-handler": "^1.0",
                 "psr/http-server-middleware": "^1.0",
                 "spatie/array-to-xml": "^3.3.0",
                 "webmozart/assert": "^1.10 || ^2.0",
@@ -1543,12 +1545,13 @@
                 "zendframework/zend-problem-details": "*"
             },
             "require-dev": {
+                "boundwize/structarmed": "^0.18.11",
+                "laminas/internal-tooling": "^1.0.0",
                 "laminas/laminas-coding-standard": "~3.1.0",
-                "laminas/laminas-diactoros": "^3.8",
-                "phpunit/phpunit": "^11.5.46",
-                "psalm/plugin-phpunit": "^0.19.5",
-                "rector/rector": "^2.2.14",
-                "vimeo/psalm": "^6.14.1"
+                "laminas/laminas-diactoros": "^3.10",
+                "phpunit/phpunit": "^11.5.57",
+                "psalm/plugin-phpunit": "^0.19.7",
+                "vimeo/psalm": "^6.20.10"
             },
             "type": "library",
             "extra": {
@@ -1586,11 +1589,11 @@
             },
             "funding": [
                 {
-                    "url": "https://funding.communitybridge.org/projects/laminas-project",
-                    "type": "community_bridge"
+                    "url": "https://crowdfunding.linuxfoundation.org/initiatives/laminas-project",
+                    "type": "custom"
                 }
             ],
-            "time": "2026-02-17T14:19:56+00:00"
+            "time": "2026-11-10T00:27:54+00:00"
         },
         {
             "name": "mezzio/mezzio-router",
@@ -2850,16 +2853,16 @@
         },
         {
             "name": "webmozart/assert",
-            "version": "2.4.1",
+            "version": "2.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webmozarts/assert.git",
-                "reference": "2ccb7c2e821038c03a3e6e1700c570c158c55f70"
+                "reference": "8a163706bbcac613733dba03f51e13b5eb1bb819"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webmozarts/assert/zipball/2ccb7c2e821038c03a3e6e1700c570c158c55f70",
-                "reference": "2ccb7c2e821038c03a3e6e1700c570c158c55f70",
+                "url": "https://api.github.com/repos/webmozarts/assert/zipball/8a163706bbcac613733dba03f51e13b5eb1bb819",
+                "reference": "8a163706bbcac613733dba03f51e13b5eb1bb819",
                 "shasum": ""
             },
             "require": {
@@ -2910,9 +2913,9 @@
             ],
             "support": {
                 "issues": "https://github.com/webmozarts/assert/issues",
-                "source": "https://github.com/webmozarts/assert/tree/2.4.1"
+                "source": "https://github.com/webmozarts/assert/tree/2.5.0"
             },
-            "time": "2026-06-15T15:31:57+00:00"
+            "time": "2026-10-05T23:14:19+00:00"
         },
         {
             "name": "willdurand/negotiation",
